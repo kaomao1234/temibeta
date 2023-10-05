@@ -38,12 +38,13 @@ import com.example.temi_beta.NavItem
 import com.example.temi_beta.hook.DataStorePreference
 import com.example.temi_beta.selectedValue
 import com.example.temi_beta.unSelectedValue
+import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
 import com.example.temi_beta.viewmodel.ControlPanelViewModel
 import com.example.temi_beta.viewmodel.ShoppingCartViewModel
 
 @Composable
-fun Landing(robotProtocol: RobotProtocol) {
+fun Landing(robotProtocol: RobotProtocol,temiSocketIO: TemiSocketIO) {
     val context = LocalContext.current
     val dataStorePreference = DataStorePreference()
     val navController = rememberNavController()
@@ -131,7 +132,7 @@ fun Landing(robotProtocol: RobotProtocol) {
                 }
                 composable("shopping-cart") {
                     ShoppingCart(navController,
-                        remember { ShoppingCartViewModel(robotProtocol) })
+                        remember { ShoppingCartViewModel(robotProtocol,temiSocketIO) })
                 }
                 composable("control-panel") {
                     ControlPanel(

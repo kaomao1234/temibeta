@@ -15,9 +15,10 @@ import com.example.temi_beta.api.getOrderItemList
 import com.example.temi_beta.api.updateQuantity
 import com.example.temi_beta.hook.DataStorePreference
 import com.example.temi_beta.model.CartItemModel
+import com.example.temi_beta.utils.TemiSocketIO
 import kotlinx.coroutines.launch
 
-class ShoppingCartViewModel (val robotProtocol: RobotProtocol?) : ViewModel() {
+class ShoppingCartViewModel (val robotProtocol: RobotProtocol?,val temiSocketIO: TemiSocketIO) : ViewModel() {
     private var orderItemList = mutableStateOf<List<OrderItem>?>(null)
     private val cartItemList = mutableStateListOf<CartItemModel>()
     val total = mutableFloatStateOf(0F)
@@ -87,6 +88,7 @@ class ShoppingCartViewModel (val robotProtocol: RobotProtocol?) : ViewModel() {
         viewModelScope.launch {
             confirm_order("True")
         }
+        temiSocketIO.emit("receiver_moving_status","complete")
         cartItemList.clear()
     }
 

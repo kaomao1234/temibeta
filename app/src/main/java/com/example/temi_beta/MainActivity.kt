@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
             socketIO.emit("receiver_moving_status", status)
         })
 
-    private var socketIO: TemiSocketIO = TemiSocketIO("192.168.225.147", "5000", robotProtocol)
+    var socketIO: TemiSocketIO = TemiSocketIO("192.168.225.147", "5000", robotProtocol)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        socketIO.emit("response", "Hello world")
@@ -121,7 +121,7 @@ fun App(instance: MainActivity) {
     return MaterialTheme {
         when (isConnected) {
             true -> when(isLocationChange.value){
-                false -> Landing(instance.robotProtocol)
+                false -> Landing(instance.robotProtocol,instance.socketIO)
                 true -> Box(Modifier.fillMaxSize()){
                     Text(
                         "Wait for locating",
