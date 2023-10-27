@@ -1,7 +1,7 @@
 package com.example.temi_beta.viewmodel
 
 import RobotProtocol
-import androidx.compose.runtime.MutableState
+import android.util.Log
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -13,20 +13,23 @@ import com.example.temi_beta.api.confirm_order
 import com.example.temi_beta.api.deleteOrderItem
 import com.example.temi_beta.api.getOrderItemList
 import com.example.temi_beta.api.updateQuantity
-import com.example.temi_beta.hook.DataStorePreference
+import com.example.temi_beta.hook.DataStore
 import com.example.temi_beta.model.CartItemModel
+import com.example.temi_beta.state.LocationChangeHandler
+import com.example.temi_beta.state.NumberOrder
 import com.example.temi_beta.utils.TemiSocketIO
 import kotlinx.coroutines.launch
 
-class ShoppingCartViewModel (val robotProtocol: RobotProtocol?,val temiSocketIO: TemiSocketIO) : ViewModel() {
+class ShoppingCartViewModel (val robotProtocol: RobotProtocol?, private val temiSocketIO: TemiSocketIO) : ViewModel() {
     private var orderItemList = mutableStateOf<List<OrderItem>?>(null)
     private val cartItemList = mutableStateListOf<CartItemModel>()
     val total = mutableFloatStateOf(0F)
-    private val numOrderState =
-        DataStorePreference().getWithKey<MutableState<Int>>("_numOrderState")
-    val isLocationChange =
-        DataStorePreference().getWithKey<MutableState<Boolean>>("_isLocationChange")
-
+    val dataStore = DataStore()
+    private val numOrderState = dataStore.getValue<NumberOrder>()?.state
+    val locationChangeHandler = dataStore.getValue<LocationChangeHandler>()?.state
+    init {
+        Log.d("State",numOrderState.toString())
+    }
     suspend fun fetchOrderItemList(): SnapshotStateList<CartItemModel> {
         val result = getOrderItemList()
         orderItemList.value = result
@@ -59,14 +62,13 @@ class ShoppingCartViewModel (val robotProtocol: RobotProtocol?,val temiSocketIO:
                     totalOrderItem++
                 }
             }
-            numOrderState.value =
+            numOrderState?.value =
                 if (totalOrderItem > 99) 99 else totalOrderItem
         }
     }
 
     suspend fun updateOverQuantity(menuId: String, quantity: Int) {
         updateQuantity(menuId, quantity)
-
     }
 
 
@@ -86,7 +88,7 @@ class ShoppingCartViewModel (val robotProtocol: RobotProtocol?,val temiSocketIO:
 
     fun onPayPress() {
         viewModelScope.launch {
-            confirm_order("True")
+            confirm_order("true")
         }
         temiSocketIO.emit("receiver_moving_status","complete")
         cartItemList.clear()

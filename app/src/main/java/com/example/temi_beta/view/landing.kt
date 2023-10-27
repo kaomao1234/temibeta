@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -21,11 +25,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -34,27 +39,48 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.temi_beta.NavItem
-import com.example.temi_beta.hook.DataStorePreference
+import com.example.temi_beta.hook.DataStore
 import com.example.temi_beta.selectedValue
+import com.example.temi_beta.state.NumberOrder
 import com.example.temi_beta.unSelectedValue
 import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
 import com.example.temi_beta.viewmodel.ControlPanelViewModel
 import com.example.temi_beta.viewmodel.ShoppingCartViewModel
 
+
+open class NavItem(
+    val route: String, val icon: ImageVector, var value: MutableState<MutableMap<String, Any>>
+) {
+    object Home : NavItem(
+        "home", Icons.Outlined.Home, mutableStateOf(
+            selectedValue.toMutableMap()
+        )
+    )
+
+    object ShoppingCart : NavItem(
+        "shopping-cart", Icons.Outlined.ShoppingCart, mutableStateOf(
+            unSelectedValue.toMutableMap()
+        )
+    )
+
+    object ControlPanel : NavItem(
+        "control-panel", Icons.Outlined.Settings, mutableStateOf(
+            unSelectedValue.toMutableMap()
+        )
+    )
+}
 @Composable
 fun Landing(robotProtocol: RobotProtocol,temiSocketIO: TemiSocketIO) {
     val context = LocalContext.current
-    val dataStorePreference = DataStorePreference()
+    val dataStore = DataStore()
     val navController = rememberNavController()
     val items = listOf(
         NavItem.Home, NavItem.ShoppingCart, NavItem.ControlPanel
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    dataStorePreference.set("_numOrderState", remember { mutableIntStateOf(0) })
-    val numOrderState = dataStorePreference.getWithKey<MutableState<Int>>("_numOrderState")
+    val numOrderState = dataStore.getValue<NumberOrder>()?.state
     return Scaffold(Modifier.fillMaxSize(), bottomBar = {
         NavigationBar(
             containerColor = Color(0xFF00bcd4)
@@ -72,7 +98,7 @@ fun Landing(robotProtocol: RobotProtocol,temiSocketIO: TemiSocketIO) {
                         BadgedBox(badge = {
                             if (screen.route == "shopping-cart") {
                                 Text(
-                                    text = numOrderState.value.toString(),
+                                    text = numOrderState?.value.toString(),
                                     textAlign = TextAlign.Center,
                                     fontSize = 16.dpTextUnit,
                                     modifier = Modifier

@@ -9,27 +9,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.temi_beta.api.insertTable
-import com.example.temi_beta.hook.DataStorePreference
+import com.example.temi_beta.hook.DataStore
 import com.example.temi_beta.hook.connectivityState
+import com.example.temi_beta.state.LocationChangeHandler
+import com.example.temi_beta.state.NumberOrder
 import com.example.temi_beta.utils.ConnectionState
 import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
@@ -38,23 +32,22 @@ import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : ComponentActivity() {
-    val dataStorePreference = DataStorePreference()
+    val dataStore = DataStore()
     var robotProtocol: RobotProtocol =
         RobotProtocol(onGoToLocationStatusChangedListener = { instance,
                                                               location,
                                                               status,
                                                               descriptionId,
                                                               description ->
-            val isLocationChange =
-                dataStorePreference.getWithKey<MutableState<Boolean>>("_isLocationChange")
+            val isLocationChange = dataStore.getValue<LocationChangeHandler>()?.state
             if (status == "complete") {
-                isLocationChange.value = false
+                isLocationChange?.value = false
                 instance.repose()
                 runBlocking {
                     insertTable(location)
                 }
             }else{
-                isLocationChange.value = true
+                isLocationChange?.value = true
             }
             socketIO.emit("receiver_moving_status", status)
         })
@@ -63,8 +56,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        socketIO.emit("response", "Hello world")
+        dataStore.addValue(LocationChangeHandler())
+        dataStore.addValue(NumberOrder())
+        dataStore.addValue(this)
         setContent {
-            App(this)
+            App()
         }
     }
 
@@ -89,39 +85,19 @@ val unSelectedValue = mutableMapOf<String, Any>(
     "textColor" to Color.White, "iconColor" to Color.White, "isSelected" to false
 )
 
-open class NavItem(
-    val route: String, val icon: ImageVector, var value: MutableState<MutableMap<String, Any>>
-) {
-    object Home : NavItem(
-        "home", Icons.Outlined.Home, mutableStateOf(
-            selectedValue.toMutableMap()
-        )
-    )
-
-    object ShoppingCart : NavItem(
-        "shopping-cart", Icons.Outlined.ShoppingCart, mutableStateOf(
-            unSelectedValue.toMutableMap()
-        )
-    )
-
-    object ControlPanel : NavItem(
-        "control-panel", Icons.Outlined.Settings, mutableStateOf(
-            unSelectedValue.toMutableMap()
-        )
-    )
-}
 
 
 @Composable
-fun App(instance: MainActivity) {
+fun App() {
+    val dataStore = DataStore()
+    val instance = dataStore.getValue<MainActivity>()
     val connection by connectivityState()
     val isConnected = connection == ConnectionState.Available
-    val isLocationChange =  remember { mutableStateOf(false) }
-    instance.dataStorePreference.set("_isLocationChange",isLocationChange)
+    val isLocationChange = dataStore.getValue<LocationChangeHandler>()?.state
     return MaterialTheme {
         when (isConnected) {
-            true -> when(isLocationChange.value){
-                false -> Landing(instance.robotProtocol,instance.socketIO)
+            true -> when(isLocationChange?.value){
+                false -> Landing(instance!!.robotProtocol, instance.socketIO)
                 true -> Box(Modifier.fillMaxSize()){
                     Text(
                         "Wait for locating",
@@ -129,6 +105,18 @@ fun App(instance: MainActivity) {
                         fontSize = 20.dpTextUnit,
                         modifier = Modifier.align(Alignment.Center)
                     )
+                }
+
+                else -> {
+                    Box(Modifier.fillMaxSize()){
+                        Text(
+                            "Error:= datastore is null",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.dpTextUnit,
+                            color=Color.Red,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
             }
 
@@ -150,14 +138,10 @@ fun App(instance: MainActivity) {
     }
 }
 
-@Composable()
-fun BApp() {
-    return App(instance = MainActivity())
-}
 
 
 @Preview(showBackground = true, widthDp = 1280, heightDp = 800)
 @Composable()
 fun AppPreview() {
-    return BApp()
+    return App()
 }

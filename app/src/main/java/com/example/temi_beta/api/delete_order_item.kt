@@ -20,8 +20,11 @@ suspend fun deleteOrderItem(itemId: String): String? {
         )
     Log.d("Api", "deleteOrderItem: ${response.body}")
     return if (response.statusCode == 200) {
+        Log.d("Api","delete Order is complete")
         Klaxon().parse<Map<String, String>>(response.body)?.get("message")
+
     } else {
+        Log.e("Api","delete Order is ${response.statusCode}")
         null
     }
 }

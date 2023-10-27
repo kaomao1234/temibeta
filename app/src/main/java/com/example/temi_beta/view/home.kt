@@ -89,7 +89,9 @@ fun AlertingDialog(
                         textAlign = TextAlign.Center,
                     )
                     IconButton(onClick = {
-                        if (numOrderItem.intValue < 20) numOrderItem.intValue++ else numOrderItem.intValue =
+                        if (numOrderItem.intValue < 20) {
+                            numOrderItem.intValue++
+                        } else numOrderItem.intValue =
                             20
                     }) {
                         Box(Modifier.size(60.dp)) {
@@ -131,7 +133,7 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
     val searchValue = viewModel.search.collectAsState()
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
-    var selectedMenu = remember { mutableStateOf<MenuItemModel?>(null) }
+    val selectedMenu = remember { mutableStateOf<MenuItemModel?>(null) }
     val openDialog = remember {
         mutableStateOf(false)
     }
