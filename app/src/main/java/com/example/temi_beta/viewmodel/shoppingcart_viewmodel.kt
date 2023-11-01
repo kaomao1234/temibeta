@@ -90,7 +90,7 @@ class ShoppingCartViewModel (val robotProtocol: RobotProtocol?, private val temi
         viewModelScope.launch {
             confirm_order("true")
         }
-        temiSocketIO.emit("receiver_moving_status","complete")
+        temiSocketIO.emit("on_ready","ready")
         cartItemList.clear()
     }
 
