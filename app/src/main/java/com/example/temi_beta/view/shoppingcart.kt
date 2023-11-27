@@ -109,7 +109,7 @@ fun ShoppingCart(navController: NavController, viewModel: ShoppingCartViewModel)
                         false -> LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(bottom = 56.dp),
+                                .padding(bottom = if(total.value>0) 56.dp else 0.dp),
                             state = rememberLazyListState()
                         ) {
                             val cartItemModelList = snapshot.data
@@ -152,47 +152,51 @@ fun ShoppingCart(navController: NavController, viewModel: ShoppingCartViewModel)
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
             }
-            Row(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .background(Color.Yellow)
-                    .height(56.dp)
-                    .padding(0.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth(0.5F)
-                ) {
-                    Text(
-                        "Total : ${total.floatValue} thb",
-                        fontSize = 18.dpTextUnit,
-                        color = Color.Red,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .padding(start = 10.dp),
-
-                        )
-                }
-                Button(
-                    onClick = {
-                        viewModel.onPayPress()
-                        navController.navigate("home")
-                    },
-                    shape = RectangleShape,
+            if (total.value > 0)
+                Row(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .background(Color.Yellow)
+                        .height(56.dp)
+                        .padding(0.dp)
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(0.5F)
                     ) {
                         Text(
-                            text = "Pay",
-                            fontSize = 16.dpTextUnit,
+                            "ราคารวม : ${total.floatValue} บาท",
+                            fontSize = 18.dpTextUnit,
+                            color = Color.Red,
                             modifier = Modifier
-                                .align(Alignment.Center)
-                        )
+                                .align(Alignment.CenterStart)
+                                .padding(start = 10.dp),
+
+                            )
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.onPayPress()
+                            navController.navigate("home")
+                            viewModel.viewModelScope.launch {
+                                snackbarHostState.showSnackbar("ชำระเงินเรียบร้อยแล้ว")
+                            }
+                        },
+                        shape = RectangleShape,
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = "จ่าย",
+                                fontSize = 16.dpTextUnit,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                            )
+                        }
                     }
                 }
-            }
         }
     }
 }

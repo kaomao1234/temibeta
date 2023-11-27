@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -63,11 +64,11 @@ open class NavItem(
         )
     )
 
-//    object ControlPanel : NavItem(
-//        "control-panel", Icons.Outlined.Settings, mutableStateOf(
-//            unSelectedValue.toMutableMap()
-//        )
-//    )
+    object ControlPanel : NavItem(
+        "control-panel", Icons.Outlined.Settings, mutableStateOf(
+            unSelectedValue.toMutableMap()
+        )
+    )
 }
 @Composable
 fun Landing(robotProtocol: RobotProtocol,temiSocketIO: TemiSocketIO) {

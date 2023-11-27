@@ -54,11 +54,11 @@ fun AlertingDialog(
 ) {
     val numOrderItem = remember { mutableIntStateOf(1) }
     return AlertDialog(onDismissRequest = {
-    }, title = { Text(text = "Please enter the amount of food.") },
+    }, title = { Text(text = "กรุณากรอกจำนวนอาหาร") },
         text = {
             Column {
                 Text(
-                    "Would you like to add ${menuModel?.name} to your cart?",
+                    "คุณต้องการเพิ่ม ${menuModel?.name} ลงในรถเข็นของคุณหรือไม่?",
                     fontSize = 25.dpTextUnit
                 )
                 Row(
@@ -114,7 +114,7 @@ fun AlertingDialog(
                     state.value = false
                     viewModel.callCreateOrderItem(menuModel.id, numOrderItem.intValue.toString())
                 }) {
-                Text("Confirm Button")
+                Text("ยืนยัน")
             }
         },
         dismissButton = {
@@ -122,7 +122,7 @@ fun AlertingDialog(
                 onClick = {
                     state.value = false
                 }) {
-                Text("Dismiss Button")
+                Text("ยกเลิก")
             }
         })
 }
@@ -148,7 +148,7 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
                 viewModel.filterMenuWithName(newText.text)
             }, placeholder = {
                 Text(
-                    "Search Menu", fontSize = 20.dpTextUnit, color = Color.White
+                    "ค้นหาเมนู", fontSize = 20.dpTextUnit, color = Color.White
                 )
             }, colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent, // Set your desired background color here

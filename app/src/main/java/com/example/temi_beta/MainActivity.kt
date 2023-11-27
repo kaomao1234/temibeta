@@ -24,6 +24,7 @@ import com.example.temi_beta.hook.DataStore
 import com.example.temi_beta.hook.connectivityState
 import com.example.temi_beta.state.LocationChangeHandler
 import com.example.temi_beta.state.NumberOrder
+import com.example.temi_beta.state.TemiSocketStatus
 import com.example.temi_beta.utils.ConnectionState
 import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
@@ -44,21 +45,27 @@ class MainActivity : ComponentActivity() {
                 isLocationChange?.value = false
                 instance.repose()
                 runBlocking {
-                    insertTable(location)
+                    if (location != "home base") {
+                        insertTable(location)
+                    }
+
                 }
-            }else{
+            } else {
                 isLocationChange?.value = true
             }
             socketIO.emit("receiver_moving_status", status)
         })
 
-    var socketIO: TemiSocketIO = TemiSocketIO("192.168.225.147", "5000", robotProtocol)
+    var socketIO: TemiSocketIO = TemiSocketIO("192.168.137.1","5000",robotProtocol)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        socketIO.emit("response", "Hello world")
+        socketIO.emit("on_ready", "ready")
         dataStore.addValue(LocationChangeHandler())
         dataStore.addValue(NumberOrder())
+        dataStore.addValue(TemiSocketStatus())
         dataStore.addValue(this)
+        dataStore.addValue(socketIO)
         setContent {
             App()
         }
@@ -86,7 +93,6 @@ val unSelectedValue = mutableMapOf<String, Any>(
 )
 
 
-
 @Composable
 fun App() {
     val dataStore = DataStore()
@@ -96,11 +102,11 @@ fun App() {
     val isLocationChange = dataStore.getValue<LocationChangeHandler>()?.state
     return MaterialTheme {
         when (isConnected) {
-            true -> when(isLocationChange?.value){
+            true -> when (isLocationChange?.value) {
                 false -> Landing(instance!!.robotProtocol, instance.socketIO)
-                true -> Box(Modifier.fillMaxSize()){
+                true -> Box(Modifier.fillMaxSize()) {
                     Text(
-                        "Wait for locating",
+                        "กำลังเคลื่อนย้าย",
                         textAlign = TextAlign.Center,
                         fontSize = 20.dpTextUnit,
                         modifier = Modifier.align(Alignment.Center)
@@ -108,12 +114,12 @@ fun App() {
                 }
 
                 else -> {
-                    Box(Modifier.fillMaxSize()){
+                    Box(Modifier.fillMaxSize()) {
                         Text(
                             "Error:= datastore is null",
                             textAlign = TextAlign.Center,
                             fontSize = 20.dpTextUnit,
-                            color=Color.Red,
+                            color = Color.Red,
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
@@ -127,7 +133,7 @@ fun App() {
                 ) {
                     CircularProgressIndicator()
                     Text(
-                        "No internet connection",
+                        "ไม่มีการเชื่อมต่ออินเทอร์เน็ต",
                         textAlign = TextAlign.Center,
                         fontSize = 20.dpTextUnit
                     )
@@ -137,7 +143,6 @@ fun App() {
 
     }
 }
-
 
 
 @Preview(showBackground = true, widthDp = 1280, heightDp = 800)

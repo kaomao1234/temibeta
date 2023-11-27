@@ -89,8 +89,8 @@ class ShoppingCartViewModel (val robotProtocol: RobotProtocol?, private val temi
     fun onPayPress() {
         viewModelScope.launch {
             confirm_order("true")
+            temiSocketIO.emit("on_ready", "ready")
         }
-        temiSocketIO.emit("on_ready","ready")
         cartItemList.clear()
     }
 

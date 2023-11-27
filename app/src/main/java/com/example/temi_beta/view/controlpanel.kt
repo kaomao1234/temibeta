@@ -45,6 +45,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.temi_beta.hook.DataStore
+import com.example.temi_beta.state.TemiSocketStatus
+import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
 import com.example.temi_beta.viewmodel.ControlPanelViewModel
 import com.example.temi_beta.viewmodel.DeviceSpec
@@ -72,7 +75,6 @@ fun TtsBox(viewModel: ControlPanelViewModel, focusManager: FocusManager) {
 
 @Composable
 fun LocationBox(viewModel: ControlPanelViewModel, focusManager: FocusManager) {
-
     var locationName by remember { mutableStateOf(TextFieldValue("")) }
     var location = viewModel.location
     return Column(
@@ -364,6 +366,85 @@ fun Information(viewModel: ControlPanelViewModel) {
 }
 
 @Composable
+fun SocketIoSetupBox() {
+    val dataStore = DataStore()
+    val socket = dataStore.getValue<TemiSocketIO>()
+   val status = dataStore.getValue<TemiSocketStatus>()
+    val uri = status?.uri?.value
+    val socketIsConnect = status?.isConnect?.value
+    var ip by remember {
+        mutableStateOf(TextFieldValue(""))
+    }
+    var port by remember {
+        mutableStateOf( TextFieldValue(""))
+    }
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp, bottom = 4.dp),
+            textStyle = TextStyle(textAlign = TextAlign.Center),
+            placeholder = {
+                Text(
+                    "Input Ip address(default := ${uri?.get("ip")})",
+                    fontSize = 20.dpTextUnit,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            },
+            value = ip,
+            onValueChange = { it ->
+                ip = it
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Uri,
+                imeAction = ImeAction.Done
+            )
+        )
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp, bottom = 4.dp),
+            textStyle = TextStyle(textAlign = TextAlign.Center),
+            placeholder = {
+                Text(
+                    "Input Port(defualt := ${uri?.get("port")})",
+                    fontSize = 20.dpTextUnit,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            },
+            value = port,
+            onValueChange = { it ->
+                port = it
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            )
+        )
+        Button(onClick ={
+            socket?.disconnect()
+            socket?.eventInit()
+                        socket?.connect()
+        }, shape = RectangleShape, enabled = !socketIsConnect!!) {
+            Text(text = "Connect", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+
+        }
+        Button(onClick ={
+                        socket?.disconnect()
+        }, shape = RectangleShape, enabled = socketIsConnect) {
+            Text(text = "Disconnect", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+
+        }
+    }
+}
+
+@Composable
 fun DeviceSpecItem(spec: DeviceSpec) {
     Column(
         modifier = Modifier
@@ -388,7 +469,8 @@ fun ControlPanel(
         "Position",
         "Detection and TrackIng",
         "Tilting",
-        "Information"
+        "Information",
+        "SocketIoSetUp"
     )
 
     var starterBox by remember {
@@ -452,6 +534,7 @@ fun ControlPanel(
                         3 -> DetectionAndTrackingBox(viewModel = viewModel)
                         4 -> TiltingBox(viewModel = viewModel)
                         5 -> Information(viewModel = viewModel)
+                        6 -> SocketIoSetupBox()
                     }
                 }
             }
