@@ -18,6 +18,7 @@ class TemiSocketIO(ip:String,port: String,val robotProtocol: RobotProtocol) {
         "1" to "table1",
         "2" to "table2",
         "3" to "table3",
+        "4" to "table4"
     )
     init {
         uri?.value?.set("ip",ip)

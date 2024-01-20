@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
             val isLocationChange = dataStore.getValue<LocationChangeHandler>()?.state
             if (status == "complete") {
                 isLocationChange?.value = false
-                instance.repose()
+//                instance.repose()
                 runBlocking {
                     if (location != "home base") {
                         insertTable(location)
