@@ -30,6 +30,8 @@ import com.example.temi_beta.utils.TemiSocketIO
 import com.example.temi_beta.utils.dpTextUnit
 import com.example.temi_beta.view.Landing
 import kotlinx.coroutines.runBlocking
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : ComponentActivity() {
@@ -42,10 +44,12 @@ class MainActivity : ComponentActivity() {
                                                               description ->
             val isLocationChange = dataStore.getValue<LocationChangeHandler>()?.state
             if (status == "complete") {
+                socketIO.emit("temi_start_time",formatTime(System.currentTimeMillis()));
                 isLocationChange?.value = false
 //                instance.repose()
                 runBlocking {
                     if (location != "home base") {
+                        socketIO.emit("temi_ontable_time",formatTime(System.currentTimeMillis()));
                         insertTable(location)
                     }
 
@@ -76,7 +80,13 @@ class MainActivity : ComponentActivity() {
         socketIO.connect()
         this.robotProtocol.onStart()
     }
+    private fun formatTime(duration: Long): String {
+        val seconds = ((duration / 1000.0) % 60.0)
+        val minutes = (TimeUnit.MILLISECONDS.toMinutes(duration) % 60).toInt()
+        val hours = TimeUnit.MILLISECONDS.toHours(duration).toInt()
 
+        return String.format(Locale.US, "%02d:%02d:%04.1f", hours, minutes, seconds)
+    }
     override fun onStop() {
         super.onStop()
         socketIO.disconnect()
