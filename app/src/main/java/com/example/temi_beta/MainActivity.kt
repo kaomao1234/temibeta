@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
         socketIO.connect()
         this.robotProtocol.onStart()
     }
-    private fun formatTime(duration: Long): String {
+    private fun formatTime (duration: Long): String {
         val seconds = ((duration / 1000.0) % 60.0)
         val minutes = (TimeUnit.MILLISECONDS.toMinutes(duration) % 60).toInt()
         val hours = TimeUnit.MILLISECONDS.toHours(duration).toInt()
