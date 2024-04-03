@@ -1,6 +1,7 @@
 package com.example.temi_beta.view
 
 import HomeViewModel
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,7 +82,6 @@ fun AlertingDialog(
                                     .align(Alignment.Center)
                             )
                         }
-
                     }
                     Text(
                         numOrderItem.intValue.toString(),
@@ -178,7 +178,7 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
                 .padding(contentPadding)
                 .fillMaxSize()
         ) {
-            FutureBuilder(future = { viewModel.fetchMenus() }) { snapshot ->
+            FutureBuilder(future = {viewModel.fetchMenus()}) { snapshot ->
                 if (snapshot.hasData()) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(4),

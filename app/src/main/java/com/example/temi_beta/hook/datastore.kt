@@ -23,6 +23,4 @@ class DataStore {
     inline fun <reified T> removeValues() {
         data.removeAll { it is T }
     }
-
-
 }
