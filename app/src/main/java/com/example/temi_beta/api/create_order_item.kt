@@ -9,10 +9,10 @@ suspend fun createOrderItem(itemId: String, quantity: String): Boolean {
         "item_id" to itemId,
         "quantity" to quantity
     )
-    val respone = "https://fastapideta-1-v4049125.deta.app/update_quantity/".httpPost(
+    val response = "https://fastapideta-1-v4049125.deta.app/update_quantity/".httpPost(
         body = JsonObject(body).toJsonString(),
         headers = mapOf("Content-Type" to "application/json")
     )
-    Log.d("Api", "createOrderItem: ${respone.body}")
-    return respone.statusCode == 200
+    Log.d("Api", "createOrderItem: ${response.body}")
+    return response.statusCode == 200
 }
